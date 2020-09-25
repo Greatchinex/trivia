@@ -14,7 +14,8 @@ type Mutation {
 }
 
 type Query {
-  hello_world: String!
+  """Fetch ten random questions from database"""
+  fetch_random_questions: [quizSchema!]!
 }
 
 """Schema for quiz"""

@@ -11,11 +11,6 @@ import { quiz_data } from "../../services/quiz-data";
 
 @Resolver()
 export class quizResolver {
-  @Query(() => String)
-  async hello_world() {
-    return "Hello People";
-  }
-
   @Mutation(() => [quizSchema], {
     description: "Save all quiz questions in DB."
   })
@@ -24,6 +19,19 @@ export class quizResolver {
       const quizzes = await Quiz.insertMany(quiz_data);
 
       return quizzes;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Query(() => [quizSchema], {
+    description: "Fetch ten random questions from database"
+  })
+  async fetch_random_questions() {
+    try {
+      const random = await Quiz.aggregate([{ $sample: { size: 10 } }]);
+
+      return random;
     } catch (err) {
       throw err;
     }
