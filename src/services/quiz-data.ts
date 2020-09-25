@@ -1,4 +1,4 @@
-const quiz_data: Array<object> = [
+export const quiz_data: Array<object> = [
   {
     number: 1,
     question: "Capital City of  United Arab Emirates",
