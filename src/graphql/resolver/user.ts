@@ -10,13 +10,16 @@ import {
 
 //=========== Schema ==========//
 import { userStatus, userSchema } from "../schema/user";
+import { submitInput } from "../schema/quiz";
 
 //=========== Models ==========//
 import User from "../../models/user";
+import Quiz from "../../models/quiz";
 
 //=========== Services ==========//
 import { isAuth } from "../../config/auth";
 import { MyContext } from "../../services/type-declarations";
+import { calculatePercentage } from "../../services/utility";
 
 @Resolver()
 export class userResolver {
@@ -105,6 +108,77 @@ export class userResolver {
       }
 
       return user;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Query(() => [userSchema], { description: "Get all users in DB" })
+  async get_all_users(): Promise<userSchema> {
+    try {
+      const user = await User.find().sort({ createdAt: -1 });
+
+      return user;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(isAuth)
+  async submit_quiz(
+    @Arg("data", () => submitInput) data: submitInput,
+    @Ctx() { payload }: MyContext
+  ) {
+    try {
+      const { userId } = payload!;
+      const user = await User.findById(userId);
+
+      if (!user) {
+        throw new ApolloError("User not found");
+      }
+
+      const { question_response_pairs } = data;
+      // Track the number of answers user got correctly
+      let answered_correctly: number = 0;
+
+      // Loop through the data and compare answers user selected with what is in DB..
+      // This is to determine the correct answers selected by the users and calculate
+      // Their percentage Score
+      for (let index = 0; index < question_response_pairs.length; index++) {
+        let singlePair = question_response_pairs[index];
+
+        // console.log(singlePair.answer);
+        // Find question that matches question number
+        const findQuestion = await Quiz.findOne({
+          number: singlePair.number
+        }).select({ _id: 0, answer: 1 });
+
+        // Check if answer user selected matches the correct answer in the DB
+        if (singlePair.answer === findQuestion.answer) {
+          /*** Add one to the "answered_correctly" variable...At the end of the loop
+           * the number will be how many questions the user got correctly. This will enable
+           * calculation of percentage
+           */
+          answered_correctly += 1;
+        }
+      }
+
+      // Calculate percentage
+      const percent: number = calculatePercentage(answered_correctly);
+
+      // Update user percentage score
+      await User.findByIdAndUpdate(
+        user._id,
+        {
+          $set: {
+            percentage_score: percent
+          }
+        },
+        { new: true }
+      );
+
+      return `Your score is ${percent}%`;
     } catch (err) {
       throw err;
     }

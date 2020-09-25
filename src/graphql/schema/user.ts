@@ -1,8 +1,5 @@
 import { Field, ID, ObjectType, Int } from "type-graphql";
 
-//=========== Schema ==========//
-import { PageInfo } from "./quiz";
-
 @ObjectType({
   description: "Schema for users"
 })
@@ -38,15 +35,4 @@ export class userStatus {
 
   @Field(() => userSchema, { nullable: true })
   user?: userSchema;
-}
-
-@ObjectType({
-  description: "Getting multiple users, Makes pagination easier"
-})
-export class UserConnection {
-  @Field(() => [userSchema])
-  edges: Array<userSchema>;
-
-  @Field(() => PageInfo, { nullable: true })
-  pageInfo?: PageInfo;
 }

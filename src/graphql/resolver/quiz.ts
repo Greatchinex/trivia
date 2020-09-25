@@ -39,4 +39,15 @@ export class quizResolver {
       throw err;
     }
   }
+
+  @Query(() => [quizSchema], { description: "Get all questions in DB" })
+  async get_all_questions(): Promise<quizSchema> {
+    try {
+      const questions = await Quiz.find();
+
+      return questions;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

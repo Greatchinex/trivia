@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, Int } from "type-graphql";
+import { Field, ID, ObjectType, Int, InputType } from "type-graphql";
 
 @ObjectType({
   description: "Schema for quiz"
@@ -49,22 +49,19 @@ export class quizStatus {
   quiz?: quizSchema;
 }
 
-@ObjectType({ description: "Type for resolvers that require pagination" })
-export class PageInfo {
-  @Field()
-  hasNextPage: boolean;
+@InputType()
+class answerPairs implements Partial<quizSchema> {
+  @Field(() => Int)
+  number: number;
 
   @Field()
-  endCursor: Date;
+  answer: string;
 }
 
-@ObjectType({
-  description: "Getting multiple quizes, Makes pagination easier"
+@InputType({
+  description: "Type to pass to mutation when user wants to submit a quiz"
 })
-export class QuizConnection {
-  @Field(() => [quizSchema])
-  edges: Array<quizSchema>;
-
-  @Field(() => PageInfo, { nullable: true })
-  pageInfo?: PageInfo;
+export class submitInput {
+  @Field(() => [answerPairs])
+  question_response_pairs: Array<answerPairs>;
 }
