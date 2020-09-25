@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation } from "type-graphql";
+import { Resolver, Query, Mutation, UseMiddleware } from "type-graphql";
 
 //=========== Schema ==========//
 import { quizSchema } from "../schema/quiz";
@@ -8,6 +8,7 @@ import Quiz from "../../models/quiz";
 
 //=========== Services ==========//
 import { quiz_data } from "../../services/quiz-data";
+import { isAuth } from "../../config/auth";
 
 @Resolver()
 export class quizResolver {
@@ -25,8 +26,10 @@ export class quizResolver {
   }
 
   @Query(() => [quizSchema], {
-    description: "Fetch ten random questions from database"
+    description:
+      "Fetch ten random questions from database...For only authenticated users"
   })
+  @UseMiddleware(isAuth)
   async fetch_random_questions() {
     try {
       const random = await Quiz.aggregate([{ $sample: { size: 10 } }]);

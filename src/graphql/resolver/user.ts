@@ -1,12 +1,22 @@
-import { Resolver, Mutation, Arg } from "type-graphql";
+import { ApolloError } from "apollo-server-express";
+import {
+  Resolver,
+  Mutation,
+  Arg,
+  Query,
+  UseMiddleware,
+  Ctx
+} from "type-graphql";
 
 //=========== Schema ==========//
-import { userStatus } from "../schema/user";
+import { userStatus, userSchema } from "../schema/user";
 
 //=========== Models ==========//
 import User from "../../models/user";
 
 //=========== Services ==========//
+import { isAuth } from "../../config/auth";
+import { MyContext } from "../../services/type-declarations";
 
 @Resolver()
 export class userResolver {
@@ -78,6 +88,23 @@ export class userResolver {
         value: true,
         user
       };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Query(() => userSchema, { description: "Get user profile" })
+  @UseMiddleware(isAuth)
+  async user_profile(@Ctx() { payload }: MyContext): Promise<userSchema> {
+    try {
+      const { userId } = payload!;
+      const user = await User.findById(userId);
+
+      if (!user) {
+        throw new ApolloError("User not found");
+      }
+
+      return user;
     } catch (err) {
       throw err;
     }

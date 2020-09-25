@@ -1,3 +1,4 @@
 import { quizResolver } from "./quiz";
+import { userResolver } from "./user";
 
-export default [quizResolver] as const;
+export default [quizResolver, userResolver] as const;

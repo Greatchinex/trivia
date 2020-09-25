@@ -9,13 +9,24 @@ The javascript `Date` as string. Type represents date and time as the ISO Date s
 scalar DateTime
 
 type Mutation {
+  """Create user"""
+  create_user(email: String!, full_name: String!, password: String!): userStatus!
+
   """Save all quiz questions in DB."""
   save_questions: [quizSchema!]!
+
+  """Login for users"""
+  user_login(email: String!, password: String!): userStatus!
 }
 
 type Query {
-  """Fetch ten random questions from database"""
+  """
+  Fetch ten random questions from database...For only authenticated users
+  """
   fetch_random_questions: [quizSchema!]!
+
+  """Get user profile"""
+  user_profile: userSchema!
 }
 
 """Schema for quiz"""
@@ -30,4 +41,21 @@ type quizSchema {
   number: Int!
   question: String!
   updatedAt: DateTime!
+}
+
+"""Schema for users"""
+type userSchema {
+  _id: ID!
+  createdAt: DateTime!
+  email: String!
+  full_name: String!
+  percentage_score: Int
+  updatedAt: DateTime!
+}
+
+"""sending other values along with user schema"""
+type userStatus {
+  message: String!
+  user: userSchema
+  value: Boolean!
 }
