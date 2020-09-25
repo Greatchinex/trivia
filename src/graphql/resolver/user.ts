@@ -124,10 +124,15 @@ export class userResolver {
     }
   }
 
-  @Mutation(() => String)
+  @Mutation(() => String, {
+    description: "Calculate % score when user submits the test"
+  })
   @UseMiddleware(isAuth)
   async submit_quiz(
-    @Arg("data", () => submitInput) data: submitInput,
+    @Arg("data", () => submitInput, {
+      description: "This is all the answers selected by the user"
+    })
+    data: submitInput,
     @Ctx() { payload }: MyContext
   ) {
     try {
